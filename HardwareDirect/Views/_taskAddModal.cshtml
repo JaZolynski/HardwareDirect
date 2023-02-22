@@ -1,0 +1,91 @@
+﻿<div id="addTaskModal" class="modal">
+    <div class="modal-content">
+        <form action="#" method="POST">
+            <label for="task-name">Nazwa:</label>
+            <input type="text" id="task-name" name="task-name" required><br>
+
+            <label for="task-description">Opis:</label>
+            <input id="task-description" name="task-description" required><br>
+
+            <label for="task-due-date">Data wykonania zadania:</label>
+            <input type="date" id="task-due-date" name="task-due-date" required><br>
+
+            <label for="task-status">Status:</label>
+            <select id="task-status" name="task-status" required>
+                <option value="">Wybierz status</option>
+            </select><br>
+
+            <label for="task-assignee">Pracownik:</label>
+            <select id="task-assignee" name="task-assignee" required>
+                <option value="">Wybierz pracownika</option>
+                @foreach (var employee in Model.Employees)
+                {
+                    <option value="@employee.Id">@employee.Name @employee.Surname [@employee.Position.Name]</option>
+                }
+            </select><br>
+
+            <button type="submit">Dodaj zadanie</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    
+    $(document).ready(function () {
+        $.ajax({
+            url: '/task/GetAll',
+            type: 'GET',
+            success: function (data) {
+                var statusSelect = $('#task-status');
+                statusSelect.empty();
+                statusSelect.append($('<option>', {
+                    value: '0',
+                    text: 'Wybierz status'
+                }));
+                $.each(data.$values, function (i, item) {
+                    statusSelect.append($('<option>', {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+            },
+            error: function () {
+                alert('Wystąpił błąd podczas pobierania listy statusów');
+            }
+        });
+    });
+    
+
+    $("#addTaskModal form").submit(function (event) {
+        event.preventDefault();
+
+        var taskName = $("#task-name").val();
+        var taskDescription = $("#task-description").val();
+        var taskDueDate = $("#task-due-date").val();
+        var taskStatus = $("#task-status").val();
+        var taskAssignee = $("#task-assignee").val();
+
+        var taskData = JSON.stringify({
+            Name: taskName,
+            Description: taskDescription,
+            TaskDoneDate: taskDueDate,
+            TaskStatusId: parseInt(taskStatus),
+            EmployeeId: parseInt(taskAssignee)
+        });
+
+        $.ajax({
+            url: "/task/CreateTask",
+            type: "POST",
+            contentType: "application/json;",
+            data: taskData,
+            success: function (data) {
+                alert("Zadanie zostało dodane!");
+                location.href = "/employee";
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Błąd podczas dodawania zadania: " + errorThrown);
+            }
+        });
+    });
+
+</script>

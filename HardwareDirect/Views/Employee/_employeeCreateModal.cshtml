@@ -1,0 +1,76 @@
+﻿
+<div id="addEmployeeModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form method="post" asp-controller="Employee" asp-action="CreateEmployee">
+            <label for="firstName">Imię:</label>
+            <input type="text" id="firstName" name="Name"><br>
+
+            <label for="lastName">Nazwisko:</label>
+            <input type="text" id="lastName" name="Surname"><br>
+
+            <label for="Email">Email:</label>
+            <input type="text" id="eMail" name="EMail"><br>
+
+            <label for="position">Stanowisko:</label>
+            <select id="position" name="PositionId">
+                @foreach (var position in Model.Positions)
+                {
+                    <option value="@position.Id">@position.Name</option>
+                }
+            </select><br>
+
+            <button id="createEmployee">Dodaj</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    var addEmployeeModal = document.getElementById("addEmployeeModal");
+    var addEmployeeBtn = document.getElementById("addEmployeeBtn");
+    var closeBtn = document.getElementsByClassName("close")[0];
+    var createEmployee = document.getElementById("createEmployee");
+
+    addEmployeeBtn.onclick = function () {
+        addEmployeeModal.style.display = "block";
+    }
+
+    closeBtn.onclick = function () {
+        addEmployeeModal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == addEmployeeModal) {
+            addEmployeeModal.style.display = "none";
+        }
+    }
+
+
+
+
+    createEmployee.onclick = function () {
+    event.preventDefault(); // zapobiegaj domyślnemu zachowaniu formularza
+
+    // zserializuj formularz do formatu JSON
+    var formData = JSON.stringify({
+        Name: $('#firstName').val(),
+        Surname: $('#lastName').val(),
+        EMail: $('#eMail').val(),
+        PositionId: $('#position').val()
+    });
+
+    $.ajax({
+        url: '/Employee/CreateEmployee',
+        type: 'POST',
+        contentType: 'application/json',
+        data: formData,
+        success: function (data) {
+            location.href = "/employee";
+        },
+        error: function () {
+        }
+    });
+}
+
+
+</script>
